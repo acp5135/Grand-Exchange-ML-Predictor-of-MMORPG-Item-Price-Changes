@@ -31,7 +31,7 @@ for i in df['URL'].tolist():
     url = f"https://secure.runescape.com/m=itemdb_rs/{i}"
     r = requests.get(url)
     soup = BeautifulSoup(r.content, 'html.parser')
-    df = pd.DataFrame(columns=['Item', 'Price', 'Change', 'Date'])
+    df = pd.DataFrame(columns=['Item', 'Price', 'Change', 'Date', 'Category'])
     
     
 
@@ -41,7 +41,7 @@ for i in df['URL'].tolist():
         columns = row.findAll("td")
     
         df = df.append({'Item': get_string_from_column(columns, 0), 'Price': get_string_from_column(columns, 2),\
-        'Change': get_string_from_column(columns, 3), 'Date': str(date.today())}, ignore_index=True)
+        'Change': get_string_from_column(columns, 3), 'Date': str(date.today()), 'Category': str(i)}, ignore_index=True)
     
     cluster = MongoClient(f"mongodb+srv://acp5135:{mongo_pwd}@cluster0.2sduf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
     db = cluster["RS_Data"]
@@ -49,6 +49,5 @@ for i in df['URL'].tolist():
     
     df.reset_index(inplace=True)
     
-    print(df)
     post = df.to_dict("records")
     collection.insert_many(post)
